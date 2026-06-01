@@ -17,25 +17,27 @@ public class ExportATOR {
 	
 	public void writeFile() {
 		File directory = null;
+		String currentTime = DateTime.now().toString("MMddyyyyHHmmss");
         JFileChooser fileSelector = new JFileChooser(); 
-        fileSelector.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY); 
-        int fileChoosenState = fileSelector.showOpenDialog(null);
+		fileSelector.setFileSelectionMode(JFileChooser.FILES_ONLY); 
+		fileSelector.setSelectedFile(new File("ATOR_" + currentTime + ".json"));
+		int fileChoosenState = fileSelector.showSaveDialog(null);
         if (fileChoosenState == JFileChooser.APPROVE_OPTION) {
-        	directory = fileSelector.getSelectedFile();
+			directory = fileSelector.getSelectedFile();
         }
       
         if(directory != null) {
         	try {
-        		String currentTime = DateTime.now().toString("MMddyyyyHHmmss");
-        		String exportATORConfig = directory+ File.separator+ "export"+"_"+currentTime+".json";
+	        		String exportATORConfig = directory.getAbsolutePath();
+	        		if (!exportATORConfig.toLowerCase().endsWith(".json")) {
+	        			exportATORConfig = exportATORConfig + ".json";
+	        		}
 				FileWriter file = new FileWriter(exportATORConfig);
 				
 				PrintWriter out = new PrintWriter(file);
 				JSONObject results = exportATOR();
 		        out.write(results.toString());
 		        out.close();
-		        
-		        SetttingsTab.exportATORFile.setText(exportATORConfig);
 			}
 			catch(Exception e) {
 				callbacks.printOutput("Exception while writing JSON file"+ e.getMessage());
@@ -44,12 +46,52 @@ public class ExportATOR {
 	}
 	
 	public JSONObject exportATOR() {
-		JSONObject jsonObject = new JSONObject();
-		jsonObject.put("errorCondition", getErrorCondition());
-		jsonObject.put("obtainToken", getObtainToken());
-		jsonObject.put("errorConditionReplacement", getErrorConditionReplacement());
+		JSONObject jsonObject = exportCurrentProfile();
+		jsonObject.put("users", UsersTab.exportUsers());
+		jsonObject.put("activeUser", UsersTab.getActiveProfileName());
 		
 		return jsonObject;
+	}
+
+	public JSONObject exportCurrentProfile() {
+		JSONObject jsonObject = new JSONObject();
+		JSONArray errorCondition = getErrorCondition().get("errorconditionlist") instanceof JSONArray ? (JSONArray) getErrorCondition().get("errorconditionlist") : null;
+		JSONObject obtainToken = getObtainToken();
+		JSONArray ator = obtainToken.get("Ator") instanceof JSONArray ? (JSONArray) obtainToken.get("Ator") : null;
+		JSONArray replacement = obtainToken.get("Replacement") instanceof JSONArray ? (JSONArray) obtainToken.get("Replacement") : null;
+		JSONArray extraction = obtainToken.get("Extraction") instanceof JSONArray ? (JSONArray) obtainToken.get("Extraction") : null;
+		JSONObject errorConditionReplacement = getErrorConditionReplacement();
+		JSONArray triggerCondition = errorConditionReplacement.get("TriggerCondition") instanceof JSONObject ? (JSONArray) ((JSONObject) errorConditionReplacement.get("TriggerCondition")).get("multipleerrorcondition") : null;
+		JSONArray errorConditionReplacementList = errorConditionReplacement.get("ErrorConditionReplacementList") instanceof JSONArray ? (JSONArray) errorConditionReplacement.get("ErrorConditionReplacementList") : null;
+		BurpExtender.log("exportCurrentProfile counts error=" + (errorCondition == null ? 0 : errorCondition.size()) + " ator=" + (ator == null ? 0 : ator.size()) + " extraction=" + (extraction == null ? 0 : extraction.size()) + " replacement=" + (replacement == null ? 0 : replacement.size()) + " trigger=" + (triggerCondition == null ? 0 : triggerCondition.size()) + " errReplace=" + (errorConditionReplacementList == null ? 0 : errorConditionReplacementList.size()));
+		jsonObject.put("errorCondition", getErrorCondition());
+		jsonObject.put("obtainToken", obtainToken);
+		jsonObject.put("errorConditionReplacement", errorConditionReplacement);
+		jsonObject.put("uiState", getUiState());
+		
+		return jsonObject;
+	}
+
+	public JSONObject getUiState() {
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("errorRequest", getMessageText(ErrorPanel.ireqMessageEditor));
+		jsonObject.put("errorResponse", getMessageText(ErrorPanel.iresMessageEditor));
+		jsonObject.put("replaceRequest", getMessageText(ReplacePanel.ireqMessageEditor));
+		jsonObject.put("replaceResponse", getMessageText(ReplacePanel.iresMessageEditor));
+		jsonObject.put("previewRequest", getMessageText(PreviewPanel.ireqMessageEditor));
+		jsonObject.put("previewResponse", getMessageText(PreviewPanel.iresMessageEditor));
+		jsonObject.put("previewAtorRequest", getMessageText(PreviewPanel.ireqatorMessageEditor));
+		jsonObject.put("previewAtorResponse", getMessageText(PreviewPanel.iresatorMessageEditor));
+		jsonObject.put("previewModifiedRequest", getMessageText(PreviewPanel.ireqmodifiedMessageEditor));
+		jsonObject.put("previewModifiedResponse", getMessageText(PreviewPanel.iresmodifiedMessageEditor));
+		return jsonObject;
+	}
+
+	private String getMessageText(IMessageEditor editor) {
+		if (editor == null || editor.getMessage() == null) {
+			return "";
+		}
+		return this.callbacks.getHelpers().bytesToString(editor.getMessage());
 	}
 	
 	public JSONObject getErrorCondition() {
@@ -125,6 +167,7 @@ public class ExportATOR {
 			jsonObject.put("response", response);
 			jsonArray.add(jsonObject);
 		}
+		BurpExtender.log("getATORMacro exported count=" + jsonArray.size());
 		return jsonArray;
 	}
 	
@@ -144,6 +187,7 @@ public class ExportATOR {
 			
 			jsonArray.add(jsonObject);
 		}
+		BurpExtender.log("getReplacementList exported count=" + jsonArray.size());
 		return jsonArray;
 	}
 	
@@ -161,6 +205,7 @@ public class ExportATOR {
 			
 			jsonArray.add(jsonObject);
 		}
+		BurpExtender.log("getExtractionList exported count=" + jsonArray.size());
 		return jsonArray;
 	}
 	

@@ -6,15 +6,19 @@ public class FinalErrorCondition {
 		try {
 		String conditionname = (String) ReplacePanel.triggerConditionNameCombo.getSelectedItem();
 		
-		if(!conditionname.equals("NA")) {
+		if(conditionname != null && !conditionname.equals("NA")) {
 			condition = conditionname;
 		}
 		
 		for(MultipleErrorCondition mulCondition: ReplacePanel.multipleErrorConditions) {
 			String name = (String) mulCondition.triggerComboBox.getSelectedItem();
-			if(!name.equals("NA")) {
+			if(name != null && !name.equals("NA")) {
 				String logical = (String) mulCondition.logicalCondition.getSelectedItem();
-				condition += " " + logical + " " + name;
+				if (logical != null) {
+					condition += " " + logical + " " + name;
+				} else {
+					condition += " " + name;
+				}
 			}
 		}
 		

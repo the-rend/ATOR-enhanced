@@ -24,6 +24,9 @@ public class JsonKeyValueExtract {
     }
 
     public static String[] findPath(JSONObject jsonObject, String targetValue) {
+        if (jsonObject == null || targetValue == null) {
+            return null;
+        }
     	List<String> path = new ArrayList<>();
         for (String key : jsonObject.keySet()) {
             Object value = jsonObject.get(key);
@@ -51,16 +54,23 @@ public class JsonKeyValueExtract {
                     //System.out.println("path1  ="+path);
                     return new String[] {String.join("-->", path), value.toString()};
                 }
-            } else if (value.equals(targetValue)) {
+            } else if (value != null && value.equals(targetValue)) {
             	System.out.println("key else if key added ="+jsonObject);
                 path.add(key);
-                //  "password": "demo1234"
-                int startStringIndex = jsonObject.toString().indexOf(targetValue)-5;
-                startString = jsonObject.toString().substring(startStringIndex, jsonObject.toString().indexOf(targetValue));
+                String jsonText = jsonObject.toString();
+                int valueIndex = jsonText.indexOf(targetValue);
+                if (valueIndex < 0) {
+                    return null;
+                }
+                int startStringIndex = Math.max(0, valueIndex - 5);
+                startString = jsonText.substring(startStringIndex, valueIndex);
                 System.out.println("start string index = "+ startStringIndex + " start string " + startString);
-                int stopIndex = jsonObject.toString().indexOf(targetValue)+targetValue.length();
-                stopString = jsonObject.toString().substring(stopIndex, stopIndex+1);
-                //System.out.println("stopString string = "+ stopIndex + stopString);
+                int stopIndex = valueIndex + targetValue.length();
+                if (stopIndex >= jsonText.length()) {
+                    stopString = "";
+                } else {
+                    stopString = jsonText.substring(stopIndex, Math.min(stopIndex + 1, jsonText.length()));
+                }
                 return new String[] {String.join("-->", path), jsonObject.toString()};
             }
         }

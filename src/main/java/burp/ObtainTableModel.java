@@ -26,9 +26,9 @@ public class ObtainTableModel extends AbstractTableModel{
 		case 0:
             return "MsgID";
 		case 1:
-            return "Host";
-		case 2:
             return "Method";
+		case 2:
+            return "Host";
 		case 3:
             return "URL";
 		
@@ -43,9 +43,9 @@ public class ObtainTableModel extends AbstractTableModel{
 		case 0:
             return obtainEntry.getMsgID();
 		case 1:
-            return obtainEntry.getHost();
-		case 2:
             return obtainEntry.getMethod();
+		case 2:
+            return obtainEntry.getHost();
 		case 3:
             return obtainEntry.getUrl();
 		

@@ -43,6 +43,7 @@ public class ExecuteDryRun  extends Thread{
 				PreviewPanel.previewEntryList.add(previewEntry);
 				PreviewPanel.previewTableModel.fireTableRowsInserted(PreviewPanel.previewTableModel.getRowCount() - 1, 
 						PreviewPanel.previewTableModel.getRowCount() - 1);
+				PreviewPanel.applyPreviewMacroTableColumnWidths(PreviewPanel.previewTable);
 			}
 			};
 			

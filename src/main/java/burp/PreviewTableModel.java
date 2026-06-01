@@ -24,9 +24,9 @@ public class PreviewTableModel extends AbstractTableModel{
 		case 0:
             return "MsgID";
 		case 1:
-            return "Host";
+			return "Method";
 		case 2:
-            return "Method";
+			return "Host";
 		case 3:
             return "URL";
 		
@@ -42,9 +42,9 @@ public class PreviewTableModel extends AbstractTableModel{
 		case 0:
             return previewEntry.getMsgID();
 		case 1:
-            return previewEntry.getHost();
+			return previewEntry.getMethod();
 		case 2:
-            return previewEntry.getMethod();
+			return previewEntry.getHost();
 		case 3:
             return previewEntry.getUrl();
 		

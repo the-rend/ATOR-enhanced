@@ -17,7 +17,7 @@ public class ExtStringCreator {
     	String[] ret = new String[2];
         ret[0] = ret[1] = null;
 
-        if (selectedText.equals("") || selectedText == null) {
+	        if (selectedText == null || selectedText.isEmpty() || wholeText == null || bounds == null || bounds.length < 2) {
             return null;
         }
         int startIndex = bounds[0];
@@ -113,7 +113,13 @@ public class ExtStringCreator {
     public static String[] extractUrlText (String selectedText, String urlText) {
     	String[] ret = new String[2];
         ret[0] = ret[1] = null;
+            if (selectedText == null || selectedText.isEmpty() || urlText == null) {
+            	return null;
+            }
         String[] headersList = urlText.split(" ");
+            if (headersList.length < 2) {
+            	return null;
+            }
     	ret[0] = headersList[1];
     	ret[1] = headersList[0];
     	
@@ -126,7 +132,7 @@ public class ExtStringCreator {
         boolean selectionTag = false;
     	try {
 			String[] headersList = headers.split("\\n");
-	        if (selectedText.equals("") || selectedText == null) {
+        if (selectedText == null || selectedText.isEmpty() || headers == null) {
 	            return null;
 	        }
 	        for(int i = 0; i < headersList.length; i++)
@@ -180,6 +186,9 @@ public class ExtStringCreator {
     public static String[] extractInMultipartBody(String body, String selectedText) {
     	String[] result = new String[2];
     	result[0] = result[1] = null;
+        if (body == null || selectedText == null || selectedText.isEmpty() || BurpExtender.bodyContentType == null) {
+        	return result;
+        }
     	String splitString = BurpExtender.bodyContentType.split("boundary=")[1];
         String[] parts = body.split(splitString);
         for (String part : parts) {
@@ -202,6 +211,9 @@ public class ExtStringCreator {
     	errorPanelElement[0] = errorPanelElement[1] = null;
     	errorPanelElement[2] = errorPanelElement[3] = null;
     	try {
+            if (bodyText == null || selectedText == null || selectedText.isEmpty()) {
+                return errorPanelElement;
+            }
     		// selection in body
         	JSONObject jsonObject = new JSONObject(bodyText);
         	result = JsonKeyValueExtract.findPath(jsonObject, selectedText);
@@ -220,7 +232,7 @@ public class ExtStringCreator {
     	String[] ret = new String[2];
         ret[0] = ret[1] = null;
 
-        if (selectedText.equals("") || selectedText == null) {
+	        if (selectedText == null || selectedText.isEmpty() || wholeText == null || bounds == null || bounds.length < 2) {
             return null;
         }
         int startIndex = bounds[0];
@@ -263,10 +275,19 @@ public class ExtStringCreator {
     
     public static Map<String, String> splitQuery(String query) {
         Map<String, String> query_pairs = new LinkedHashMap<String, String>();
+        if (query == null || query.isEmpty()) {
+            return query_pairs;
+        }
         String[] pairs = query.split("&");
         try {
 	        for (String pair : pairs) {
+	            if (pair == null || pair.isEmpty()) {
+	                continue;
+	            }
 	            int idx = pair.indexOf("=");
+	            if (idx < 0) {
+	                continue;
+	            }
 	            query_pairs.put(URLDecoder.decode(pair.substring(0, idx), "UTF-8"), URLDecoder.decode(pair.substring(idx + 1), "UTF-8"));
 	        }
         }

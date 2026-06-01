@@ -77,6 +77,9 @@ public class ConfigChangedListener implements DocumentListener, ItemListener {
 
 	@Override
 	public void itemStateChanged(ItemEvent event) {
+        if (ImportATOR.isRestoringProfile()) {
+            return;
+        }
 		switch (action) {
 		case A_EXT_COMBO_CONFIG_CHANGED:
 			ObtainPanel.repCreateButton.setEnabled(AddEntryToReplacementList.isValidReplacementExtraction());
