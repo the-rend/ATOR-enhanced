@@ -1,4 +1,4 @@
-# Pending changes
+# Changes
 
 - **Added multi-user feature:**  
 User profile management with per-user request matchers, saved profile snapshots, and a dedicated Users tab for creating, renaming, deleting, and switching profiles.
